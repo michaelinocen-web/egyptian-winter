@@ -1,5 +1,5 @@
 // Offline cache for the Egypt itinerary. Bump VERSION when the app files change.
-const VERSION = "egypt-journey-v4";
+const VERSION = "egypt-journey-v5";
 const PHOTOS = "egypt-photos-v1"; // Wikimedia photos, kept across app updates
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 self.addEventListener("install", e => {

@@ -651,7 +651,6 @@ main { display: block; padding-bottom: calc(var(--tab-h) + 32px + env(safe-area-
   <path d="M37.4 7.6c7.1-3 16.2-3.3 25.4-.4-8.1.5-16.6 1.9-25.6 3.8z"/><path d="M37.4 11.4c6.3-1.8 13.8-2 21.6-.2-7.4.5-14.4 1.6-21.4 3.1z"/><path d="M37.1 14.8c5-1 10.6-1 16.7.3-5.9.4-11.4 1.2-16.9 2.4z"/>
 </g></symbol>
 <symbol id="i-checkin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><path d="M9.1 9.6l2.1 2.1 3.9-4.1"/></symbol>
-<symbol id="i-nav" viewBox="0 0 24 24"><path d="M4 11.2 20 4l-7.2 16-1.9-6.9z"/></symbol>
 <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></symbol>
 <symbol id="i-driver" viewBox="0 0 24 24"><path d="M3.5 6h9M8 4v2M5.5 6c.7 3 2.6 5.5 5 7M10.5 6c-.8 3.3-3 6-6.5 7.8"/><path d="M12.5 20.5l3.8-9 3.8 9M13.8 17.5h5"/></symbol>
 <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M11 3.5l1.8 5.2L18 10.5l-5.2 1.8L11 17.5l-1.8-5.2L4 10.5l5.2-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
@@ -740,7 +739,6 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
   const rs = r => `--rc:var(--r-${r});--rc-ink:var(--r-${r}-ink);--rc-dot:var(--d-${r})`;
   const q = m => encodeURIComponent(m.query || m.label || m.name || "");
   const mapsUrl = m => "https://www.google.com/maps/search/?api=1&query=" + q(m) + (m.placeId ? "&query_place_id=" + encodeURIComponent(m.placeId) : "");
-  const dirUrl = m => "https://www.google.com/maps/dir/?api=1&destination=" + q(m) + (m.placeId ? "&destination_place_id=" + encodeURIComponent(m.placeId) : "");
   const ext = (url, inner, cls) => `<a class="${cls}" href="${esc(url)}" target="_blank" rel="noopener">${inner}</a>`;
   const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); };
   const cur = id => (S.tab === id ? ' aria-current="page"' : "");
@@ -890,7 +888,7 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
     const nx = nextStop(d);
     if (!nx) return `<div class="upnext done"><span class="seal">${ico("check")}</span><div><span class="lbl">Day complete</span><b class="nm">All ${k.t} places checked in</b></div><div class="acts"><button class="btn btn-ghost" type="button" data-goto="passport">${ico("passport")}<span>See your stamps</span></button></div></div>`;
     const m = (nx.maps || [])[0];
-    return `<div class="upnext">${img(nx.photo, { cls: "un-img", want: 330, max: 330, sizes: "68px" })}<div><span class="lbl">${k.n ? "Up next" : "First stop"}${nx.plan ? " · " + esc(nx.plan) : ""}</span><b class="nm">${esc(nx.title)}</b>${nx.getTo ? `<span class="sub">${esc(nx.getTo)}</span>` : ""}</div><div class="acts">${m ? ext(dirUrl(m), ico("nav") + "<span>Directions</span>", "btn btn-ghost") : ""}<button class="btn btn-pri" type="button" data-ci="${nx.id}">${ico("checkin")}<span>Check in</span></button></div></div>`;
+    return `<div class="upnext">${img(nx.photo, { cls: "un-img", want: 330, max: 330, sizes: "68px" })}<div><span class="lbl">${k.n ? "Up next" : "First stop"}${nx.plan ? " · " + esc(nx.plan) : ""}</span><b class="nm">${esc(nx.title)}</b>${nx.getTo ? `<span class="sub">${esc(nx.getTo)}</span>` : ""}</div><div class="acts">${m ? ext(mapsUrl(m), ico("pin") + "<span>Map</span>", "btn btn-ghost") : ""}<button class="btn btn-pri" type="button" data-ci="${nx.id}">${ico("checkin")}<span>Check in</span></button></div></div>`;
   }
   function sideCards(d) {
     let s = "";
@@ -901,8 +899,8 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
     const bk = V.bookInAdvance.filter(b => b.day === d.id);
     if (bk.length) s += `<div class="side-card"><h3>${ico("ticket")}Book ahead for this day</h3><ul class="checklist slim">${bk.map(checkRow).join("")}</ul></div>`;
     const h = d.hotelInfo;
-    if (h) s += `<div class="side-card"><h3>${ico("bed")}Tonight</h3><div class="hotel-mini">${img(h.photo, { want: 330, max: 330, sizes: "64px" })}<div><b>${esc(h.name)}</b><p class="muted">${esc(h.note)}</p></div></div><div class="linkrow">${ext(dirUrl(h), ico("nav") + "<span>Directions</span>", "btn btn-pri btn-sm")}${h.ar ? `<button class="btn btn-ghost btn-sm" type="button" data-driver="hotel:${d.hotel}">${ico("driver")}<span>Show driver</span></button>` : ""}${h.phone ? `<a class="btn btn-ghost btn-sm" href="tel:${esc(h.phone.replace(/\s/g, ""))}">${ico("phone")}<span>Call</span></a>` : ""}</div></div>`;
-    else if (d.places && d.places[0]) s += `<div class="side-card"><h3>${ico("plane")}Departure</h3><p>${esc(d.places[0].label)}</p><div class="linkrow">${ext(dirUrl(d.places[0]), ico("nav") + "<span>Directions</span>", "btn btn-pri btn-sm")}</div></div>`;
+    if (h) s += `<div class="side-card"><h3>${ico("bed")}Tonight</h3><div class="hotel-mini">${img(h.photo, { want: 330, max: 330, sizes: "64px" })}<div><b>${esc(h.name)}</b><p class="muted">${esc(h.note)}</p></div></div><div class="linkrow">${ext(mapsUrl(h), ico("pin") + "<span>Map</span>", "btn btn-pri btn-sm")}${h.ar ? `<button class="btn btn-ghost btn-sm" type="button" data-driver="hotel:${d.hotel}">${ico("driver")}<span>Show driver</span></button>` : ""}${h.phone ? `<a class="btn btn-ghost btn-sm" href="tel:${esc(h.phone.replace(/\s/g, ""))}">${ico("phone")}<span>Call</span></a>` : ""}</div></div>`;
+    else if (d.places && d.places[0]) s += `<div class="side-card"><h3>${ico("plane")}Departure</h3><p>${esc(d.places[0].label)}</p><div class="linkrow">${ext(mapsUrl(d.places[0]), ico("pin") + "<span>Map</span>", "btn btn-pri btn-sm")}</div></div>`;
     return s;
   }
   const tlTime = plan => { if (!plan) return ""; const [t, ap] = splitTime(plan); return `<span class="tl-time" aria-hidden="true"><b>${esc(t)}</b>${ap ? `<small>${ap}</small>` : ""}</span>`; };
@@ -944,8 +942,7 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
     if (it.plan || it.recTime) facts.push(`<dt>Plan</dt><dd>${esc([it.plan, it.recTime].filter(Boolean).join(" · "))}</dd>`);
     if (it.hours) facts.push(`<dt>Hours</dt><dd>${esc(it.hours)}</dd>`);
     const m0 = (it.maps || [])[0]; const acts = [];
-    if (m0) acts.push(ext(dirUrl(m0), ico("nav") + "<span>Directions</span>", "btn btn-pri"));
-    if (m0) acts.push(ext(mapsUrl(m0), ico("pin") + "<span>Map</span>", "btn btn-ghost"));
+    if (m0) acts.push(ext(mapsUrl(m0), ico("pin") + "<span>Map</span>", "btn btn-pri"));
     if (it.ar) acts.push(`<button class="btn btn-ghost" type="button" data-driver="${it.id}">${ico("driver")}<span>Show driver</span></button>`);
     (it.maps || []).slice(1).forEach(m => acts.push(ext(mapsUrl(m), ico("pin") + `<span>${esc(m.label)}</span>`, "btn btn-ghost btn-sm")));
     const books = (it.bookings || []).map(b => ext(b.url, ico("ticket") + `<span>${esc(b.label)}</span>`, "book")).join("");
@@ -1121,7 +1118,7 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
   function infoSheet() {
     const d = DAY[S.tab] || DAY[dayForToday()];
     let h = `<div><h3 class="sh" style="--rc-ink:var(--carnelian)">${ico("shield")}Emergency</h3><ul class="sos-list">${V.emergency.map(e => `<li><span><span class="lbl">${esc(e.label)}</span><span class="num">${esc(e.number)}</span></span><a class="btn btn-sos btn-sm" href="tel:${esc(e.number.replace(/\s/g, ""))}" aria-label="Call ${esc(e.label)}">${ico("phone")}<span>Call</span></a></li>`).join("")}</ul></div>`;
-    if (d && d.hotelInfo) { const x = d.hotelInfo; h += `<div style="${rs(d.region)}"><h3 class="sh">${ico("bed")}Tonight · ${esc(d.dow + " " + d.date)}</h3><div class="hcard">${img(x.photo, { want: 330, max: 500, sizes: "92px" })}<div class="hc-tx"><h3>${esc(x.name)}</h3><p class="muted">${esc(x.note)}</p><div class="linkrow">${ext(dirUrl(x), ico("nav") + "<span>Directions</span>", "btn btn-pri btn-sm")}${x.ar ? `<button class="btn btn-ghost btn-sm" type="button" data-driver="hotel:${d.hotel}">${ico("driver")}<span>Show driver</span></button>` : ""}${x.phone ? `<a class="btn btn-ghost btn-sm" href="tel:${esc(x.phone.replace(/\s/g, ""))}">${ico("phone")}<span>Call</span></a>` : ""}</div></div></div></div>`; }
+    if (d && d.hotelInfo) { const x = d.hotelInfo; h += `<div style="${rs(d.region)}"><h3 class="sh">${ico("bed")}Tonight · ${esc(d.dow + " " + d.date)}</h3><div class="hcard">${img(x.photo, { want: 330, max: 500, sizes: "92px" })}<div class="hc-tx"><h3>${esc(x.name)}</h3><p class="muted">${esc(x.note)}</p><div class="linkrow">${ext(mapsUrl(x), ico("pin") + "<span>Map</span>", "btn btn-pri btn-sm")}${x.ar ? `<button class="btn btn-ghost btn-sm" type="button" data-driver="hotel:${d.hotel}">${ico("driver")}<span>Show driver</span></button>` : ""}${x.phone ? `<a class="btn btn-ghost btn-sm" href="tel:${esc(x.phone.replace(/\s/g, ""))}">${ico("phone")}<span>Call</span></a>` : ""}</div></div></div></div>`; }
     h += `<div><h3 class="sh">${ico("info")}Good to know</h3><ul class="bul">${V.practical.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>`;
     h += `<div><h3 class="sh">${ico("bed")}All hotels</h3><div class="hcards">${hotelCards()}</div></div>`;
     h += `<div><h3 class="sh">${ico("theme")}Appearance</h3><div class="seg" role="radiogroup" aria-label="Appearance">${[["auto", "Automatic"], ["light", "Light"], ["dark", "Dark"]].map(([m, l]) => `<button type="button" role="radio" aria-checked="${S.theme === m}" data-theme-set="${m}">${l}</button>`).join("")}</div></div>`;
@@ -1138,7 +1135,7 @@ window.TRIP={"days":[{"id":"dec27","dow":"Sun","date":"Dec 27","full":"Sunday, D
     if (!ar) return;
     if (!sheetKind) lastFocus = document.activeElement;
     sheetKind = null; document.body.classList.add("locked");
-    $("#layer").innerHTML = `<section class="driver" role="dialog" aria-modal="true" aria-label="Show this to your driver"><button class="xbtn" type="button" data-close aria-label="Close">${ico("x")}</button><div class="driver-in"><p class="ask" lang="ar" dir="rtl">لو سمحت، عايز أروح:</p><p class="ar" lang="ar" dir="rtl">${esc(ar)}</p><p class="en">${esc(name)}</p>${m ? ext(dirUrl(m), ico("nav") + "<span>Open in Google Maps</span>", "btn btn-gold") : ""}</div><p class="driver-foot">Show this screen to your driver · tap ✕ to close</p></section>`;
+    $("#layer").innerHTML = `<section class="driver" role="dialog" aria-modal="true" aria-label="Show this to your driver"><button class="xbtn" type="button" data-close aria-label="Close">${ico("x")}</button><div class="driver-in"><p class="ask" lang="ar" dir="rtl">لو سمحت، عايز أروح:</p><p class="ar" lang="ar" dir="rtl">${esc(ar)}</p><p class="en">${esc(name)}</p>${m ? ext(mapsUrl(m), ico("pin") + "<span>Open in Google Maps</span>", "btn btn-gold") : ""}</div><p class="driver-foot">Show this screen to your driver · tap ✕ to close</p></section>`;
     const x = $("#layer .xbtn"); if (x) x.focus();
   }
 
